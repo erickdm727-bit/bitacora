@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bitácora">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Crect width=%2224%22 height=%2224%22 rx=%225%22 fill=%22%231F4FD8%22/%3E%3Cpath d=%22M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12%22 stroke=%22white%22 stroke-width=%222%22 stroke-linecap=%22round%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1846,4 +1848,6 @@ onAuthStateChanged(auth,u=>{
   if(u){FB.uid=u.uid;FB.email=u.email||'';login.hidden=true;if(started!==u.uid){started=u.uid;window.startApp(u.uid)}}
   else{FB.uid=null;login.hidden=false;msg.textContent='Registra tus entrenos, comidas y progreso. Tus datos se guardan en tu cuenta de Google.';btn.hidden=false}
 });
-</script></body></html>
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+</body></html>
