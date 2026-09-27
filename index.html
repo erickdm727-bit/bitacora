@@ -190,6 +190,8 @@ li.row2{display:flex;align-items:center;gap:.4rem} li.row2 .item{flex:1;min-widt
 #login h1{font-size:2.4rem;margin-bottom:.4rem}
 #login p{color:var(--muted);margin:.2rem 0 1.4rem}
 .gbtn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.85rem 1rem;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:1rem}
+.item.shop .qty{display:flex;flex-direction:column;align-items:flex-end;gap:.1rem}
+.price{background:none;border:0;padding:0;color:var(--accent);font-weight:600;font-size:.82rem}
 </style>
 </head>
 <body>
@@ -1605,6 +1607,7 @@ function viewPlan(){
     const tips=[];if(G.p&&t.p<G.p*0.85)tips.push('Falta proteína: agrega una fuente como pollo, huevo, atún o yogur griego.');if(G.c&&t.c<G.c*0.85)tips.push('Faltan carbohidratos: agrega arroz, avena, tortilla, papa o fruta.');if(G.f&&t.f<G.f*0.85)tips.push('Falta grasa: agrega aguacate, nueces o aceite.');
     if(G.p&&t.p>G.p*1.15||G.c&&t.c>G.c*1.15||G.f&&t.f>G.f*1.15)tips.push('Algún macro se pasa porque ciertos alimentos tienen una cantidad mínima. Quita alguno o cambia de comida.');
     h+=`<div class="card"><h3>Total del plan</h3><div style="margin-top:.4rem">${mbar('Proteína',t.p,G.p,'var(--prot)')}${mbar('Carbohidratos',t.c,G.c,'var(--carb)')}${mbar('Grasa',t.f,G.f,'var(--fat)')}</div><p class="small muted">${Math.round(kcal(t.p,t.c,t.f))} de ${Math.round(gk)} calorías. Cantidades en crudo o cocido según cómo esté el alimento en la lista.</p>${tips.map(x=>`<p class="sug">${x}</p>`).join('')}
+    <button class="btn primary block" data-act="dietCopy" style="margin-bottom:.5rem">Copiar mi dieta</button>
     <button class="btn block" data-act="planLog">Registrar el plan en ${ui.fday===dkey()?'hoy':esc(fmtDate(parseKey(ui.fday).getTime()))}</button></div>`;
   }
   return h;
@@ -1621,18 +1624,32 @@ const RAW={'pollo-pechuga-cocida':[1.33,'crudo'],'pollo-muslo-cocido':[1.35,'cru
 function shopCfg(){const s=cfg().shop||{};return{days:num(s.days)||7,checked:s.checked||{}}}
 function roundBuy(g){return g>=500?Math.ceil(g/50)*50:Math.ceil(g/10)*10}
 function fmtQ(g,liq){g=roundBuy(g);return g>=1000?(Math.round(g/100)/10)+(liq?' L':' kg'):g+(liq?' ml':' g')}
+// precios aproximados en pesos mexicanos por kg (o litro) de lo que se compra; editables por el usuario
+const PRICE_CAT={carnes:150,pescados:180,lacteos:70,cereales:40,leguminosas:40,platillos:120,frutas:40,verduras:35,grasas:200,bebidas:25,suplementos:450,otros:80};
+const PRICE_DEF={'pollo-pechuga-cocida':130,'pollo-pechuga-cruda':130,'pollo-muslo-cocido':85,'pollo-pierna':80,'pollo-deshebrado':130,'pollo-alas':110,'pollo-rostizado':130,
+'res-molida-90':190,'res-molida-80':160,'res-bistec':220,'res-arrachera':300,'res-deshebrada':200,'res-milanesa':210,'cerdo-lomo':140,'cerdo-chuleta':120,'pavo-molido':180,'higado-res':90,
+'huevo':50,'clara':90,'jamon-pavo':150,'pechuga-pavo':220,'salchicha-pavo':100,'chorizo':130,'tocino':220,'tilapia':150,'salmon':450,'atun-agua':200,'atun-aceite':200,'camaron':280,'sardina':90,
+'leche-entera':28,'leche-semi':28,'leche-light':29,'leche-deslactosada':31,'yogur-griego-0':95,'yogur-griego':90,'yogur-natural':50,'queso-panela':150,'queso-fresco':140,'queso-oaxaca':170,'queso-cottage':120,
+'whey':550,'whey-isolate':800,'caseina':650,'mutant-mass':260,'gainer':250,'arroz-blanco-cocido':35,'arroz-integral-cocido':45,'arroz-crudo':35,'avena':45,'tortilla-maiz':28,'tortilla-harina':70,
+'pan-caja':75,'pan-integral':85,'bolillo':50,'pasta-cocida':60,'pasta-cruda':60,'papa':32,'camote':35,'frijol-negro':40,'frijol-pinto':40,'frijol-refrito':55,'lentejas':45,'garbanzo':55,
+'platano':25,'manzana':50,'naranja':25,'mango':40,'papaya':30,'fresa':70,'aguacate':70,'brocoli':45,'espinaca':60,'jitomate':30,'cebolla':28,'zanahoria':22,'calabacita':30,'nopal':25,
+'aceite-oliva':250,'aceite-vegetal':50,'almendra':300,'cacahuate':110,'nuez':320,'crema-cacahuate':190,'chia':150};
+function priceOf(fid){const f=foodById(fid);const u=(cfg().prices||{})[fid];return u!=null?num(u):(PRICE_DEF[fid]??PRICE_CAT[(f&&f.cat)||'otros']??80)}
+const money=n=>'$'+Math.round(n).toLocaleString('es-MX');
 function shopList(days){
   const res=plan().res;if(!res)return null;const tot={};
   MEALS.forEach(m=>(res[m]||[]).forEach(x=>{tot[x.fid]=(tot[x.fid]||0)+num(x.g)}));
   return Object.entries(tot).map(([fid,g])=>{const f=foodById(fid);if(!f)return null;const need=g*days,liq=f.cat==='bebidas'||/^leche|bebida|jugo|kefir|yogur-bebible/.test(fid);
     const raw=RAW[fid];let qty,note='';
-    if(raw){const b=need*raw[0];qty=fmtQ(b,false);note=`Comprar ${raw[1]}. Rinde unos ${fmtQ(need,false)} cocido`}
-    else if(f.ug&&/pieza/.test(f.u)){const n=Math.ceil(need/f.ug-0.05);qty=`${n} ${n===1?'pieza':'piezas'}`;note=`unos ${fmtQ(need,false)}`}
+    let buy=need;
+    if(raw){const b=need*raw[0];buy=b;qty=fmtQ(b,false);note=`Comprar ${raw[1]}. Rinde unos ${fmtQ(need,false)} cocido`}
+    else if(f.ug&&/pieza/.test(f.u)){const n=Math.ceil(need/f.ug-0.05);buy=n*f.ug;qty=`${n} ${n===1?'pieza':'piezas'}`;note=`unos ${fmtQ(need,false)}`}
     else{qty=fmtQ(need,liq);if(f.ug&&f.u&&!/cucharad|puño|disparo/.test(f.u))note=`unos ${Math.ceil(need/f.ug-0.05)} × ${f.u}`}
-    return{fid,n:f.n,cat:f.cat,qty,note};
+    const pr=priceOf(fid),cost=buy/1000*pr;
+    return{fid,n:f.n,cat:f.cat,qty,note,liq,pr,cost};
   }).filter(Boolean);
 }
-function shopText(list,days){const lines=[`Lista del súper para ${days===1?'1 día':days+' días'}`];FCATS.forEach(([k,n])=>{const it=list.filter(x=>x.cat===k);if(!it.length)return;lines.push('',n);it.forEach(x=>lines.push(`- ${x.n}: ${x.qty}${x.note?' ('+x.note+')':''}`))});return lines.join('\n')}
+function shopText(list,days){const lines=[`Lista del súper para ${days===1?'1 día':days+' días'}`,`Costo aproximado: ${money(list.reduce((a,x)=>a+x.cost,0))}`];FCATS.forEach(([k,n])=>{const it=list.filter(x=>x.cat===k);if(!it.length)return;lines.push('',n);it.forEach(x=>lines.push(`- ${x.n}: ${x.qty} (~${money(x.cost)})${x.note?' - '+x.note:''}`))});return lines.join('\n')}
 function viewShop(){
   const sc=shopCfg(),p=plan();
   let h=`<section class="hero"><h2>Lista del súper</h2><p>Sale de tu plan de comidas, repetido los días que elijas.</p></section>`;
@@ -1640,12 +1657,26 @@ function viewShop(){
   const list=shopList(sc.days);const pend=MEALS.reduce((a,m)=>a+p.foods[m].filter(id=>!(p.res[m]||[]).some(x=>x.fid===id)).length,0);
   h+=`<div class="chips">${[[1,'1 día'],[7,'1 semana'],[14,'2 semanas']].map(([v,l])=>`<button class="chip" aria-pressed="${sc.days===v}" data-act="shopDays" data-v="${v}">${l}</button>`).join('')}<label class="small muted" style="display:flex;align-items:center;gap:.3rem;white-space:nowrap">Otro: <input class="field pct" inputmode="numeric" data-f="shopdays" value="${[1,7,14].includes(sc.days)?'':sc.days}" placeholder="días" aria-label="Número de días"></label></div>
   ${pend?`<p class="sug">${pend} ${pend===1?'alimento del plan no tiene':'alimentos del plan no tienen'} gramos calculados y no ${pend===1?'entra':'entran'} en la lista.</p>`:''}`;
+  const tot=list.reduce((a,x)=>a+x.cost,0);
+  h+=`<div class="card"><div class="row" style="align-items:baseline"><span class="stat big">${money(tot)}</span><span class="muted">aprox. para ${sc.days===1?'1 día':sc.days+' días'}</span></div><p class="small muted" style="margin:.3rem 0 0">Unos ${money(tot/sc.days)} al día. Precios de referencia en México; toca el precio de cualquier producto para ajustarlo a lo que pagas.</p></div>`;
   FCATS.forEach(([k,n])=>{const it=list.filter(x=>x.cat===k);if(!it.length)return;
-    h+=`<div class="card"><h3>${n}</h3><ul class="list">${it.map(x=>`<li><label class="item shop ${sc.checked[x.fid]?'got':''}"><input type="checkbox" data-f="shopchk" data-id="${esc(x.fid)}" ${sc.checked[x.fid]?'checked':''}><div class="t"><b>${esc(x.n)}</b>${x.note?`<span>${esc(x.note)}</span>`:''}</div><span class="qty">${esc(x.qty)}</span></label></li>`).join('')}</ul></div>`});
+    h+=`<div class="card"><h3>${n}</h3><ul class="list">${it.map(x=>`<li><label class="item shop ${sc.checked[x.fid]?'got':''}"><input type="checkbox" data-f="shopchk" data-id="${esc(x.fid)}" ${sc.checked[x.fid]?'checked':''}><div class="t"><b>${esc(x.n)}</b>${x.note?`<span>${esc(x.note)}</span>`:''}</div><span class="qty">${esc(x.qty)}<button class="price" data-act="priceEdit" data-id="${esc(x.fid)}">~${money(x.cost)}</button></span></label></li>`).join('')}</ul></div>`});
   h+=`<p class="small muted">Las carnes, el arroz, la pasta y las leguminosas que están cocidos en tu plan se convierten a crudo o seco, que es como se compran. Las cantidades se redondean hacia arriba.</p>
   <div class="row"><button class="btn primary" style="flex:1" data-act="shopCopy">Copiar lista</button>${Object.keys(sc.checked).length?'<button class="btn ghost" data-act="shopClear">Desmarcar todo</button>':''}</div>`;
   return h;
 }
+
+function priceSheet(fid){const f=foodById(fid);if(!f)return;const custom=(cfg().prices||{})[fid]!=null;
+  openSheet(sheetHead('Precio de '+f.n)+`<label class="lbl" for="prIn" style="margin-top:0">Precio por kilo${/leche|bebida|jugo|aceite/.test(fid)||f.cat==='bebidas'?' (o litro)':''} en pesos</label><input id="prIn" class="field" inputmode="decimal" value="${priceOf(fid)}" autofocus>
+  <p class="small muted">Si lo compras por pieza o paquete, divide lo que pagas entre el peso. Ej.: un paquete de 900 g a $135 = $150 por kilo.</p>
+  <button class="btn primary block" data-act="priceSave" data-id="${esc(fid)}">Guardar precio</button>${custom?`<button class="btn ghost block" style="margin-top:.5rem" data-act="priceReset" data-id="${esc(fid)}">Usar precio de referencia</button>`:''}`)}
+function dietText(){const p=plan(),G=goals();const L=[`MI DIETA`,`Metas: ${Math.round(kcal(G.p,G.c,G.f))} calorías · P ${Math.round(G.p)} g · C ${Math.round(G.c)} g · G ${Math.round(G.f)} g`];let T={p:0,c:0,f:0};
+  MEALS.forEach(m=>{const items=(p.res&&p.res[m]||[]).map(x=>({f:foodById(x.fid),g:num(x.g)})).filter(x=>x.f);if(!items.length)return;const mt={p:0,c:0,f:0};L.push('',m.toUpperCase());
+    items.forEach(({f,g})=>{mt.p+=f.p*g;mt.c+=f.c*g;mt.f+=f.f*g;L.push(`- ${f.n}: ${g} g`)});
+    L.push(`  ${Math.round(kcal(mt.p,mt.c,mt.f))} cal · P ${Math.round(mt.p)} · C ${Math.round(mt.c)} · G ${Math.round(mt.f)}`);T.p+=mt.p;T.c+=mt.c;T.f+=mt.f});
+  L.push('',`TOTAL DEL DÍA: ${Math.round(kcal(T.p,T.c,T.f))} calorías · Proteína ${Math.round(T.p)} g · Carbos ${Math.round(T.c)} g · Grasa ${Math.round(T.f)} g`);return L.join('\n')}
+async function copyText(txt,okMsg){let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(e){}
+  if(ok)toast(okMsg);else openSheet(sheetHead('Copiar')+`<p class="small muted" style="margin:0 0 .5rem">Mantén presionado el texto para seleccionarlo y copiarlo.</p><textarea class="field" rows="16" readonly>${esc(txt)}</textarea>`)}
 
 // ---- vista Progreso ----
 function viewProgress(){
@@ -1730,11 +1761,14 @@ async function act2(A,d,el){
       put('config',mcfg());closeSheet();render();break}
     case 'shopDays':{const c=mcfg();c.shop=Object.assign(shopCfg(),{days:num(d.v)});put('config',c);render();break}
     case 'shopClear':{const c=mcfg();c.shop=Object.assign(shopCfg(),{checked:{}});put('config',c);render();break}
-    case 'shopCopy':{const sc=shopCfg(),txt=shopText(shopList(sc.days)||[],sc.days);let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(e){}
-      if(ok)toast('Lista copiada. Pégala en tus notas o en WhatsApp.');else openSheet(sheetHead('Copiar lista')+`<p class="small muted" style="margin:0 0 .5rem">Mantén presionado el texto para seleccionarlo y copiarlo.</p><textarea class="field" rows="14" readonly>${esc(txt)}</textarea>`);break}
+    case 'shopCopy':{const sc=shopCfg();copyText(shopText(shopList(sc.days)||[],sc.days),'Lista copiada. Pégala en tus notas o en WhatsApp.');break}
     case 'genWeek':genWeekSheet();break;
     case 'gwSet':ui.gw[d.k]=d.k==='n'?+d.v:d.v;genWeekSheet();break;
     case 'gwMake':makeWeek();closeSheet();render();toast('Semana creada. Revisa y ajusta lo que quieras.');break;
+    case 'priceEdit':priceSheet(d.id);break;
+    case 'priceSave':{const v=num($('#prIn').value);if(!(v>0)){toast('Escribe un precio válido.');break}const c=mcfg();c.prices=Object.assign({},c.prices||{},{[d.id]:v});put('config',c);closeSheet();render();toast('Precio guardado');break}
+    case 'priceReset':{const c=mcfg();c.prices=Object.assign({},c.prices||{});delete c.prices[d.id];put('config',c);closeSheet();render();break}
+    case 'dietCopy':copyText(dietText(),'Dieta copiada. Pégala en tus notas o en WhatsApp.');break;
     case 'planMode':{const pl=mplan();pl.mode=d.v;put('config',mcfg());render();break}
     case 'planFree':{const pl=mplan();delete pl.fixed[d.meal][d.id];if(pl.res&&pl.res[d.meal])pl.res[d.meal]=pl.res[d.meal].filter(x=>x.fid!==d.id);pl.res=genPlanFrom(pl);put('config',mcfg());closeSheet();render();toast('Gramos recalculados');break}
     case 'planGen':{const pl=mplan();pl.res=genPlan();put('config',mcfg());render();break}

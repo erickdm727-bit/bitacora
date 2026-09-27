@@ -1,5 +1,5 @@
 // Service worker de la Bitácora: permite instalarla como app y abrirla sin internet.
-const CACHE = 'bitacora-v1';
+const CACHE = 'bitacora-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
