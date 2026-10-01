@@ -192,6 +192,7 @@ li.row2{display:flex;align-items:center;gap:.4rem} li.row2 .item{flex:1;min-widt
 .gbtn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.85rem 1rem;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:1rem}
 .item.shop .qty{display:flex;flex-direction:column;align-items:flex-end;gap:.1rem}
 .price{background:none;border:0;padding:0;color:var(--accent);font-weight:600;font-size:.82rem}
+ol.prog li.cur{font-weight:600}
 </style>
 </head>
 <body>
@@ -420,6 +421,16 @@ const LIB_ROWS = [
 ['snatch-mancuerna','Arrancada con mancuerna','completo','Mancuernas','w','gluteo,delt_a','isquios,trapecio',1,'Mancuerna entre los pies|Extensión explosiva de cadera|Recibe arriba con el brazo recto','Jalar solo con el brazo'],
 ['bear-crawl','Caminata de oso','completo','Peso corporal','t','abdomen,delt_a','cuadriceps',0,'Manos y pies, rodillas a unos cm del piso|Avanza con mano y pie contrarios|Espalda plana','Subir la cadera'],
 ['jumping-jacks','Jumping jacks','completo','Peso corporal','b','pantorrilla,delt_l','cuadriceps',0,'Salta abriendo piernas y brazos|Regresa juntando|Ritmo constante','Aterrizar con talones'],
+['lagartijas-arquero','Lagartijas arquero','pecho','Peso corporal','b','pecho','triceps,delt_a',1,'Manos muy abiertas, más allá de los hombros|Baja hacia un lado doblando ese brazo mientras el otro queda casi recto|Alterna lados; cuenta cada lado como una repetición','Doblar el brazo que debe quedar recto'],
+['lagartijas-una-mano-inclinada','Lagartija a una mano inclinada','pecho','Peso corporal','b','pecho,triceps','delt_a,oblicuos,abdomen',1,'Apoya una mano en una superficie elevada (mesa, banco o escalón)|Pies más abiertos que los hombros y cuerpo rígido|Baja el pecho sin girar la cadera; usa superficies más bajas conforme progreses','Girar el torso para poder subir'],
+['lagartijas-una-mano','Lagartijas a una mano','pecho','Peso corporal','b','pecho,triceps','delt_a,oblicuos,abdomen',1,'Pies más abiertos que los hombros para tener equilibrio|Mano bajo el pecho y el brazo libre en la espalda|Baja con el cuerpo rígido y sin girar; empuja hasta extender','Rotar la cadera o abrir el codo hacia afuera'],
+['dominadas-negativas','Dominadas negativas (excéntricas)','espalda','Peso corporal','b','dorsal','biceps,espalda_media',1,'Sube con un salto o una silla hasta tener la barbilla sobre la barra|Baja lo más lento posible, de 3 a 5 segundos|Repite; cada bajada cuenta como una repetición','Dejarse caer al final del movimiento'],
+['dominadas-banda','Dominadas asistidas con liga','espalda','Banda','b','dorsal','biceps,espalda_media',1,'Pasa la liga por la barra y apoya un pie o una rodilla en ella|Sube llevando el pecho a la barra|Usa ligas más delgadas conforme te hagas más fuerte','Rebotar desde abajo con la liga'],
+['dominadas-arquero','Dominadas arquero','espalda','Peso corporal','b','dorsal,biceps','espalda_media',1,'Agarre muy abierto|Sube hacia una mano mientras el otro brazo se estira|Alterna lados','Doblar el brazo que debe ir recto'],
+['sentadilla-pistola','Sentadilla pistola (a una pierna)','cuadriceps','Peso corporal','b','cuadriceps,gluteo','aductores,abdomen',1,'Estira una pierna al frente|Baja controlado sobre la otra hasta el fondo|Al empezar, baja hasta una caja o sujétate de algo','Despegar el talón o dejar que la rodilla se vaya hacia adentro'],
+['flexiones-pica-elevadas','Flexiones en pica con pies elevados','hombros','Peso corporal','b','delt_a','triceps,trapecio',1,'Pies en un banco o silla y cadera arriba|Baja la cabeza hacia el piso entre las manos|Empuja de regreso','Arquear la espalda'],
+['flexiones-pino','Flexiones en parada de manos (contra la pared)','hombros','Peso corporal','b','delt_a,triceps','trapecio',1,'Parada de manos con los pies apoyados en la pared|Baja la cabeza hacia el piso de forma controlada|Empuja hasta extender los brazos','Bajar sin control o arquear la espalda'],
+['elevacion-rodillas-colgado','Elevación de rodillas colgado','abdomen','Peso corporal','b','abdomen','oblicuos,antebrazo',0,'Cuélgate de la barra|Sube las rodillas al pecho enrollando la pelvis|Baja lento sin balancearte','Balancearse'],
 ['boxeo','Boxeo / costal','cardio','Cardio','c','delt_a,abdomen','triceps,oblicuos',0,'Guardia arriba|Golpea girando cadera|Registra tiempo','Bajar la guardia','TK'],
 ['baile','Baile / zumba','cardio','Cardio','c','cuadriceps,gluteo','pantorrilla',0,'Calienta antes|Mantén el ritmo|Registra tiempo','Deshidratarse','TK'],
 ['senderismo','Senderismo','cardio','Cardio','c','cuadriceps,gluteo','pantorrilla',0,'Calzado adecuado|Pasos cortos en subidas|Registra tiempo y distancia','No llevar agua','TDK'],
@@ -874,13 +885,20 @@ Object.assign(ARCH,{
  punch:[{ua:120,fa:-60,ua2:110,fa2:-70,th:70,sh:100,th2:110,sh2:88},{ua:0,fa:0,ua2:110,fa2:-70,th:70,sh:100,th2:110,sh2:88},[]],
  burpee:[{ua:-92,fa:-92},{a:'w',at:[88,109],tr:-25,ua:90,fa:90,th:155,sh:155,ft:100},[]],
 });
+Object.assign(ARCH,{
+ hspu:[{a:'w',at:[50,109],tr:90,ua:90,fa:90,th:-90,sh:-90,ft:180},{a:'w',at:[50,109],tr:90,ua:150,fa:60,th:-90,sh:-90,ft:180},[P.line(64,4,64,110,4)]],
+ archer:[{a:'w',at:[88,109],tr:-25,ua:90,fa:90,th:155,sh:155,ft:100,ua2:60,fa2:60},{a:'w',at:[88,109],tr:-10,ua:145,fa:45,th:168,sh:168,ft:100,ua2:20,fa2:20},[]],
+ pistol:[{tr:-86,ua:0,fa:0,th2:90,sh2:90},{tr:-55,th:10,sh:111,ua:0,fa:0,th2:-10,sh2:-10,ft2:-80},[]],
+ neg:[{...HANG,ua:105,fa:-80,tr:-95},HANG,[P.pull(60,18)]],
+});
 Object.assign(FARCH,{rearfly:[FARCH.cablefly[1],FARCH.cablefly[0],[P.frontDb]]});
 const ARCHMAP={};
 const _am={bench:'press-banca press-cerrado press-banca-smith press-declinado-barra floor-press',benchDb:'press-mancuernas press-pecho-maquina press-hex press-declinado-mancuernas',
 incline:'press-inclinado-barra press-inclinado-maquina',inclineDb:'press-inclinado-mancuernas aperturas-inclinadas',fly:'aperturas-mancuernas',pullover:'pullover-mancuerna',
 cablefly:'cruce-poleas-alto cruce-poleas-bajo pec-deck cruce-poleas-medio',rearfly:'reverse-pec-deck pajaros elevaciones-posteriores-polea',
-pushup:'lagartijas lagartijas-inclinadas lagartijas-declinadas lagartijas-diamante lagartijas-rodillas flexiones-pica',dip:'fondos-pecho fondos-triceps fondos-banco fondos-maquina',
-pullup:'dominadas dominadas-supinas dominadas-asistidas',hang:'colgarse-barra',pulldown:'jalon-abierto jalon-cerrado jalon-supino jalon-unilateral',straightarm:'pullover-polea ski-erg',
+archer:'lagartijas-arquero',hspu:'flexiones-pino',pistol:'sentadilla-pistola',neg:'dominadas-negativas',
+pushup:'lagartijas-una-mano lagartijas-una-mano-inclinada flexiones-pica-elevadas lagartijas lagartijas-inclinadas lagartijas-declinadas lagartijas-diamante lagartijas-rodillas flexiones-pica',dip:'fondos-pecho fondos-triceps fondos-banco fondos-maquina',
+pullup:'dominadas dominadas-supinas dominadas-asistidas dominadas-banda dominadas-arquero',hang:'colgarse-barra',pulldown:'jalon-abierto jalon-cerrado jalon-supino jalon-unilateral',straightarm:'pullover-polea ski-erg',
 rowBent:'remo-barra remo-pendlay remo-t remo-meadows remo-seal',rowBentDb:'remo-mancuerna',rowSeat:'remo-polea-baja remo-maquina remo-polea-unilateral',invrow:'remo-invertido',
 deadlift:'peso-muerto rack-pull pm-sumo peso-muerto-trap power-clean',rdl:'rdl-barra rdl-mancuernas pm-una-pierna',goodmorning:'buenos-dias',hyper:'hiperextensiones superman glute-ham',
 shrug:'encogimientos-barra encogimientos-mancuernas',facepull:'face-pull',ohp:'press-militar press-landmine turkish-getup',ohpDb:'press-arnold',ohpSeat:'press-hombro-mancuernas press-hombro-maquina press-hombro-smith',
@@ -889,7 +907,7 @@ curl:'curl-alterno curl-martillo curl-inclinado curl-concentrado curl-arana curl
 curlCable:'curl-polea curl-bayesiano curl-cable-cuerda',pushdown:'extension-cuerda extension-barra-polea extension-unilateral-polea extension-triceps-maquina',overhead:'extension-cabeza-mancuerna extension-cabeza-polea',
 skull:'press-frances jm-press press-frances-mancuernas',kickback:'patada-triceps',farmer:'paseo-granjero pinza-discos suitcase-carry',
 plank:'plancha plancha-lateral plancha-toque-hombro aductor-copenhague bear-crawl rueda-abdominal',crunch:'crunch crunch-maquina situps-declinados bicicleta-abdominal russian-twist v-ups',
-cableCrunch:'crunch-polea',hangraise:'elevacion-piernas-colgado elevacion-rodillas-capitan',legraiseLie:'dead-bug hollow-hold elevacion-piernas-acostado crunch-inverso flutter-kicks',
+cableCrunch:'crunch-polea',hangraise:'elevacion-rodillas-colgado elevacion-piernas-colgado elevacion-rodillas-capitan',legraiseLie:'dead-bug hollow-hold elevacion-piernas-acostado crunch-inverso flutter-kicks',
 pressOut:'pallof-press lenador-polea',climber:'escaladores',squat:'sentadilla sentadilla-smith sentadilla-hack sentadilla-pendulo sentadilla-cinturon wall-sit',squatFront:'sentadilla-frontal',
 goblet:'sentadilla-goblet sentadilla-sumo',squatBw:'sentadilla-libre sissy-squat sentadilla-cosaca zancada-lateral',legpress:'prensa talones-prensa prensa-unilateral',legext:'extension-cuadriceps',
 lunge:'zancadas sentadilla-bulgara zancada-inversa',stepup:'step-up',legcurlLie:'curl-femoral-acostado curl-femoral-pie',legcurlSeat:'curl-femoral-sentado',nordic:'curl-nordico',
@@ -990,23 +1008,54 @@ function fmtSet(t,s,f){
 }
 
 // progresión automática
+const PROG=[
+ {n:'Lagartijas',goal:12,ids:['lagartijas-rodillas','lagartijas-inclinadas','lagartijas','lagartijas-diamante','lagartijas-declinadas','lagartijas-arquero','lagartijas-una-mano-inclinada','lagartijas-una-mano']},
+ {n:'Dominadas',goal:10,ids:['remo-invertido','dominadas-negativas','dominadas-banda','dominadas-supinas','dominadas','dominadas-arquero']},
+ {n:'Fondos',goal:12,ids:['fondos-banco','fondos-triceps']},
+ {n:'Sentadilla a una pierna',goal:12,ids:['sentadilla-libre','zancada-inversa','sentadilla-bulgara','sentadilla-cosaca','sentadilla-pistola']},
+ {n:'Empuje vertical',goal:10,ids:['flexiones-pica','flexiones-pica-elevadas','flexiones-pino']},
+ {n:'Abdomen',goal:12,ids:['crunch-inverso','elevacion-piernas-acostado','elevacion-rodillas-colgado','elevacion-piernas-colgado']},
+ {n:'Glúteo',goal:15,ids:['puente-gluteo','puente-una-pierna','hip-thrust']},
+];
+function chainOf(id){for(const c of PROG){const k=c.ids.indexOf(id);if(k>=0)return Object.assign({k},c)}return null}
+function nextInChain(id){const c=chainOf(id);return c&&c.k<c.ids.length-1&&exById(c.ids[c.k+1])?c.ids[c.k+1]:null}
+function defTarget(ex,last){if(ex.t==='w')return{sets:last.length,rmin:8,rmax:12};const c=chainOf(ex.id);const g=c?c.goal:15;return{sets:3,rmin:Math.max(3,Math.round(g/2)),rmax:g}}
 function suggestion(ex,target){
-  if(!target||!ex||(ex.t!=='w'&&ex.t!=='b'))return null;
+  if(!ex)return null;
   const ses=sessionsFor(ex.id,docs.active&&docs.active.editId);
   if(!ses.length)return null;
+  const last=ses[0].sets,nx=nextInChain(ex.id),nxN=nx?exById(nx).n:'';
+  if(ex.t==='c'){const b=last.reduce((a,x)=>num(x.T)>num(a.T)?x:a,last[0]||{});const T=num(b.T);
+    if(!T)return{msg:`Última vez: ${fmtSet('c',b,ex.f)}. Hoy intenta superarlo un poco.`};
+    const nt=Math.ceil(T*1.1);return{c:{T:nt},msg:`Última vez: ${fmtSet('c',b,ex.f)}. Hoy busca ${nt} min, o mantén el tiempo y sube un poco la velocidad, inclinación o resistencia.`}}
+  const w=Math.max(...last.map(s=>num(s.w)));
+  if(ex.t==='t'){const best=Math.max(...last.map(s=>num(s.r)));
+    if(best>=60&&nx)return{w,r:best,next:nx,msg:`Aguantaste ${best} s. Ya puedes pasar a ${nxN}.`};
+    if(best>=60)return{w,r:best,msg:`Aguantaste ${best} s. Agrega peso o usa una variante más difícil.`};
+    return{w,r:best+5,msg:`Mejor tiempo: ${best} s. Hoy busca ${best+5} s en cada serie.`}}
+  target=target||defTarget(ex,last);
   const inc=ex.c?2.5:1;
-  const last=ses[0].sets; const w=Math.max(...last.map(s=>num(s.w)));
   const top=last.length>=target.sets&&last.every(s=>num(s.r)>=target.rmax);
   const below=s=>s.some(x=>num(x.r)<target.rmin);
-  if(top){
-    if(ex.t==='b'&&w===0)return{w:0,msg:`Completaste ${target.rmax} reps en todas las series. Agrega lastre o usa una variante más difícil.`};
-    return{w:r1(w+inc),msg:`Completaste ${target.rmax} reps en todas las series: sube a ${r1(w+inc)} kg.`};
-  }
+  if(ex.t==='b'&&w===0){
+    if(top&&nx)return{w:0,next:nx,msg:`Completaste ${target.rmax} reps en todas las series. Ya puedes pasar a ${nxN}.`};
+    if(top)return{w:0,msg:`Completaste ${target.rmax} reps en todas las series. Agrega lastre (mochila con peso) para seguir progresando.`};
+    const br=Math.max(...last.map(s=>num(s.r)));
+    return{w:0,r:Math.min(target.rmax,br+1),msg:`Mejor serie: ${br} reps. Hoy busca ${Math.min(target.rmax,br+1)} o más; la meta es ${target.sets} × ${target.rmax}${nx?' para pasar a '+nxN:''}.`}}
+  if(top)return{w:r1(w+inc),msg:`Completaste ${target.rmax} reps en todas las series: sube a ${r1(w+inc)} kg${ex.t==='b'?' de lastre':''}.`};
   if(ses.length>1&&below(last)&&below(ses[1].sets)&&Math.max(...ses[1].sets.map(s=>num(s.w)))===w){
     const lw=Math.max(0,r1(w-inc));
-    return{w,msg:`Dos sesiones sin llegar a ${target.rmin} reps con ${w} kg: mantén o baja a ${lw} kg.`};
-  }
+    return{w,msg:`Dos sesiones sin llegar a ${target.rmin} reps con ${w} kg: mantén o baja a ${lw} kg.`}}
   return{w,msg:`Mantén ${w} kg y busca sumar repeticiones hasta ${target.rmax}.`};
+}
+function progHTML(ex){
+  const c=chainOf(ex.id);let h='';
+  if(c){h+=`<p class="small" style="margin:.3rem 0">Escalera de ${esc(c.n.toLowerCase())}, de la más fácil a la más difícil:</p><ol class="steps prog">${c.ids.filter(id=>exById(id)).map(id=>`<li class="${id===ex.id?'cur':''}">${id===ex.id?`<b>${esc(exById(id).n)}</b> <span class="tag">aquí estás</span>`:`<button class="linkbtn" data-act="exInfo" data-id="${esc(id)}">${esc(exById(id).n)}</button>`}</li>`).join('')}</ol>
+    <p class="small muted">${nextInChain(ex.id)?`Pasa al siguiente nivel cuando hagas 3 series de ${c.goal} con buena técnica.`:'Es el nivel más alto de esta escalera: progresa con más repeticiones o con lastre.'}</p>`}
+  else h+=`<p class="small muted" style="margin:.3rem 0">${ex.t==='w'?`Doble progresión: trabaja en un rango (por ejemplo 8–12). Cuando completes el máximo en todas las series, sube ${ex.c?'2.5 kg':'1–2 kg'} y vuelve al mínimo del rango.`:ex.t==='b'?'Suma repeticiones hasta llegar a 15 por serie. Después agrega lastre (una mochila con peso) o usa una variante más difícil.':ex.t==='t'?'Suma 5–10 segundos por sesión. Al llegar a 60 s, agrega peso o usa una variante más difícil.':'Sube el tiempo poco a poco (no más de 10% por semana). Cuando el tiempo ya te acomode, sube la intensidad: velocidad, inclinación o resistencia.'}</p>`;
+  const sg=suggestion(ex,null);
+  h+=`<p class="sug">${sg?'Tu siguiente meta: '+esc(sg.msg):'Regístralo una vez y aquí verás tu siguiente meta.'}</p>`;
+  return h;
 }
 
 // ---------- estado de UI ----------
@@ -1079,15 +1128,15 @@ function exCard(e,i){
   let body;
   if(ex.t==='c'){
     const f=(ex.f||'TK').split('');
-    body=e.sets.map((s,k)=>`<div class="cbox ${s.done?'done':''}"><div class="row" style="justify-content:space-between;margin-bottom:.4rem"><span class="small muted">Bloque ${k+1}${prev[k]?' · anterior: '+esc(fmtSet('c',prev[k],ex.f)):''}</span><button class="check" data-act="toggleSet" data-i="${i}" data-s="${k}" aria-label="Marcar como hecho">${ICON_CHECK}</button></div><div class="cgrid">${f.map(key=>`<div><label>${CF[key][0]} (${CF[key][1]})</label><input inputmode="decimal" data-f="c" data-k="${key}" data-i="${i}" data-s="${k}" value="${esc(s[key]||'')}" placeholder="${prev[k]&&prev[k][key]?esc(prev[k][key]):''}"></div>`).join('')}</div></div>`).join('');
+    body=e.sets.map((s,k)=>`<div class="cbox ${s.done?'done':''}"><div class="row" style="justify-content:space-between;margin-bottom:.4rem"><span class="small muted">Bloque ${k+1}${prev[k]?' · anterior: '+esc(fmtSet('c',prev[k],ex.f)):''}</span><button class="check" data-act="toggleSet" data-i="${i}" data-s="${k}" aria-label="Marcar como hecho">${ICON_CHECK}</button></div><div class="cgrid">${f.map(key=>`<div><label>${CF[key][0]} (${CF[key][1]})</label><input inputmode="decimal" data-f="c" data-k="${key}" data-i="${i}" data-s="${k}" value="${esc(s[key]||'')}" placeholder="${key==='T'&&e.sug&&e.sug.c?e.sug.c.T:prev[k]&&prev[k][key]?esc(prev[k][key]):''}"></div>`).join('')}</div></div>`).join('');
   } else {
     const wl=ex.t==='b'?'+kg':'kg', rl=ex.t==='t'?'Seg':'Reps';
     body=`<table class="sets"><thead><tr><th>Serie</th><th>Anterior</th><th>${wl}</th><th>${rl}</th><th></th></tr></thead><tbody>${e.sets.map((s,k)=>{
-      const p=prev[k]; const pw=e.sug?e.sug.w:(p?num(p.w):''); const pr=p?num(p.r):(e.target?e.target.rmax:'');
+      const p=prev[k]; const pw=e.sug?e.sug.w:(p?num(p.w):''); const pr=e.sug&&e.sug.r!=null?e.sug.r:(p?num(p.r):(e.target?e.target.rmax:''));
       return `<tr class="${s.done?'done':''}"><td class="n">${k+1}</td><td class="prev">${p?esc(fmtSet(ex.t,p)):'–'}</td><td><input inputmode="decimal" data-f="w" data-i="${i}" data-s="${k}" value="${esc(s.w)}" placeholder="${pw===''||pw===0&&ex.t!=='w'?'':esc(pw)}" aria-label="Peso serie ${k+1}"></td><td><input inputmode="numeric" data-f="r" data-i="${i}" data-s="${k}" value="${esc(s.r)}" placeholder="${esc(pr)}" aria-label="${rl} serie ${k+1}"></td><td><button class="check" data-act="toggleSet" data-i="${i}" data-s="${k}" aria-label="Marcar serie ${k+1}">${ICON_CHECK}</button></td></tr>`}).join('')}</tbody></table>`;
   }
   return `<article class="card ex"><div class="exh"><div class="t"><h3><button data-act="exInfo" data-id="${esc(e.exId)}">${esc(ex.n)}</button></h3><span class="small muted">${esc(GNAME[ex.g]||'')}${ex.eq?', '+esc(ex.eq):''}${tgt?'. '+tgt:''}</span></div><button class="btn sm ghost danger" data-act="removeEx" data-i="${i}" data-confirm="1">Quitar</button></div>
-  ${e.sug?`<div class="sug">${esc(e.sug.msg)}</div>`:''}${body}
+  ${e.sug?`<div class="sug">${esc(e.sug.msg)}${e.sug.next&&exById(e.sug.next)?` <button class="linkbtn" data-act="swapEx" data-i="${i}" data-id="${esc(e.sug.next)}">Cambiar a ${esc(exById(e.sug.next).n)}</button>`:''}</div>`:''}${body}
   <div class="row" style="margin-top:.5rem"><button class="btn sm" data-act="addSet" data-i="${i}">${ex.t==='c'?'Agregar bloque':'Agregar serie'}</button>${e.sets.length>1?`<button class="btn sm ghost" data-act="delSet" data-i="${i}">Quitar última</button>`:''}</div></article>`;
 }
 const ICON_CHECK='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
@@ -1216,6 +1265,7 @@ function exInfoSheet(id){
   <p class="small"><b>Principales:</b> ${esc(ex.m.map(m=>MUS[m]).join(', ')||'–')}${ex.s.length?`<br><b>Secundarios:</b> ${esc(ex.s.map(m=>MUS[m]).join(', '))}`:''}</p>
   ${ex.cues&&ex.cues.filter(Boolean).length?`<h3 style="margin-top:.8rem">Técnica</h3><ol class="steps">${ex.cues.filter(Boolean).map(c=>`<li>${esc(c)}</li>`).join('')}</ol>`:''}
   ${ex.err?`<h3 style="margin-top:.8rem">Error común</h3><p class="err">${esc(ex.err)}</p>`:''}
+  <h3 style="margin-top:.8rem">Progresión</h3>${progHTML(ex)}
   <h3 style="margin-top:.8rem">Tus últimas sesiones</h3>${ses.length?ses.map(s=>`<p class="small" style="margin:.3rem 0"><b>${fmtDate(s.date)}</b>: ${s.sets.map(x=>esc(fmtSet(ex.t,x,ex.f))).join('; ')}</p>`).join(''):'<p class="small muted">Aún no lo has registrado.</p>'}
   <div class="row" style="margin-top:1rem">${favBtn('ex',id)}${docs.active?`<button class="btn primary" data-act="pickOne" data-id="${esc(id)}" data-mode="active">Agregar al entreno</button>`:''}${custom?`<button class="btn" data-act="customEdit" data-id="${esc(id)}">Editar</button><button class="btn ghost danger" data-act="customDel" data-id="${esc(id)}" data-confirm="1">Borrar</button>`:''}</div>`);
 }
@@ -1262,7 +1312,7 @@ function addExTo(mode,id){
   if(mode==='routine'&&ui.rDraft){ui.rDraft.items.push({exId:id,sets:ex.t==='c'?1:3,rmin:ex.t==='c'?'':8,rmax:ex.t==='c'?'':12});closeSheet();render();return}
   const a=docs.active;if(!a)return;
   const prev=(sessionsFor(id,a.editId)[0]||{}).sets;const n=ex.t==='c'?1:(prev?prev.length:3);
-  a.exercises.push({exId:id,n:ex.n,target:null,sug:null,sets:Array.from({length:n},()=>({w:'',r:'',done:false}))});
+  a.exercises.push({exId:id,n:ex.n,target:null,sug:suggestion(ex,null),sets:Array.from({length:n},()=>({w:'',r:'',done:false}))});
   put('active',a);closeSheet();tab='train';ui.tsub='today';render();
   setTimeout(()=>{const c=document.querySelectorAll('.ex');if(c.length)c[c.length-1].scrollIntoView({behavior:'smooth',block:'start'})},50);
 }
@@ -1327,6 +1377,7 @@ function act(el){
       s.done=!s.done;put('active',a);if(s.done&&ex.t!=='c')startRest();render();break}
     case 'addSet':{const e=a.exercises[+d.i];const last=e.sets[e.sets.length-1]||{};const ex=exById(e.exId)||{t:'w'};e.sets.push(ex.t==='c'?{done:false}:{w:last.w||'',r:'',done:false});put('active',a);render();break}
     case 'delSet':{const e=a.exercises[+d.i];if(e.sets.length>1)e.sets.pop();put('active',a);render();break}
+    case 'swapEx':{const e=a.exercises[+d.i],nx=exById(d.id);if(!e||!nx)break;a.exercises[+d.i]={exId:nx.id,n:nx.n,target:e.target,sug:suggestion(nx,e.target),sets:e.sets.map(()=>({w:'',r:'',done:false}))};put('active',a);render();toast('Cambiado a '+nx.n+'. Actualiza tu rutina si quieres quedarte con este nivel.');break}
     case 'removeEx':a.exercises.splice(+d.i,1);put('active',a);render();break;
     case 'finish':finish();break;
     case 'discard':put('active',null);stopRest();render();toast('Entreno descartado');break;
